@@ -12,7 +12,35 @@ def analyze_bill(file_path):
     with open(file_path, "rb") as img_file:
         img_bytes = img_file.read()
     model = genai.GenerativeModel("gemini-1.5-flash")
-    prompt = "Extract all relevant bill details (items, quantity, price, date, vendor, total, etc) from this purchase bill image. Return as JSON."
+    prompt = """Extract all relevant bill details from this purchase bill image and return as JSON with the following structure:
+    {
+        "bill_no": "Bill number",
+        "date": "Bill date",
+        "vendor": "Vendor name",
+        "vendor_address": "Full vendor address",
+        "customer": "Customer name",
+        "customer_phone": "Customer phone",
+        "items": [
+            {
+                "description": "Item description",
+                "hsn": "HSN code",
+                "quantity": "Quantity",
+                "rate": "Rate per unit",
+                "amount": "Total amount"
+            }
+        ],
+        "total": "Subtotal",
+        "cgst": "CGST amount",
+        "sgst": "SGST amount",
+        "igst": "IGST amount",
+        "grand_total": "Final total",
+        "bank_details": {
+            "bank_name": "Bank name",
+            "branch": "Branch name",
+            "account_no": "Account number",
+            "ifsc": "IFSC code"
+        }
+    }"""
     response = model.generate_content([
         prompt,
         {"mime_type": "image/jpeg", "data": img_bytes}

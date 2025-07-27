@@ -45,14 +45,11 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar configuration
+# Sidebar branding
 st.sidebar.image("https://img.icons8.com/fluency/96/shop.png", width=96)
-st.sidebar.markdown("## Navigation")
-option = st.sidebar.radio(
-    "",
-    ["📋 View Inventory", "📤 Upload Inventory"],
-    label_visibility="collapsed"
-)
+
+# Main navigation tabs
+tab1, tab2 = st.tabs(["📋 View Inventory", "📤 Upload Inventory"])
 
 def parse_bill_from_text(raw_text):
     """Helper function to parse bill JSON from raw text"""
@@ -92,7 +89,8 @@ def display_bill_details(data):
         with col2:
             st.write("**Vendor Details:**")
             st.write(f"Name: {bill_data.get('vendor', '')}")
-            st.write(f"Address: {bill_data.get('vendor_address', '')}")
+            # Using st.text to avoid Markdown interpretation
+            st.text(f"Address: {bill_data.get('vendor_address', '')}")
 
         st.write("**Items:**")
         items = bill_data.get("items", [])
@@ -134,13 +132,15 @@ def display_bill_details(data):
         with col4:
             st.write("**Bank Details:**")
             bank = bill_data.get('bank_details', {})
-            if bank:
-                st.write(f"Bank: {bank.get('bank_name', '')}")
-                st.write(f"Branch: {bank.get('branch', '')}")
-                st.write(f"A/C: {bank.get('account_no', '')}")
-                st.write(f"IFSC: {bank.get('ifsc', '')}")
+            if bank and any(bank.values()):  # Only show if we have any bank details
+                st.text(f"Bank: {bank.get('bank_name', 'N/A')}")
+                st.text(f"Branch: {bank.get('branch', 'N/A')}")
+                st.text(f"A/C No: {bank.get('account_no', 'N/A')}")
+                st.text(f"IFSC: {bank.get('ifsc', 'N/A')}")
+            else:
+                st.info("No bank details available")
 
-if option == "📤 Upload Inventory":
+if option == "� Upload Inventory":
     # Container for upload section
     with st.container():
         st.markdown("""
