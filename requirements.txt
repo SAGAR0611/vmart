@@ -1,0 +1,7 @@
+streamlit
+python-dotenv
+requests
+uvicorn
+fastapi
+google-generativeai
+python-multipart
