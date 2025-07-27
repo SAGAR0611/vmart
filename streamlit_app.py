@@ -1,14 +1,11 @@
 import streamlit as st
 import requests
-import os
 import json
 import re
 import pandas as pd
-from dotenv import load_dotenv
 
-load_dotenv()
-
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+# Get API URL from secrets in production, fallback to localhost in development
+API_URL = st.secrets.get("API_URL", "http://localhost:8000")
 
 # Configure the page
 st.set_page_config(
