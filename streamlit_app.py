@@ -48,9 +48,6 @@ st.markdown("""
 # Sidebar branding
 st.sidebar.image("https://img.icons8.com/fluency/96/shop.png", width=96)
 
-# Main navigation tabs
-tab1, tab2 = st.tabs(["📋 View Inventory", "📤 Upload Inventory"])
-
 def parse_bill_from_text(raw_text):
     """Helper function to parse bill JSON from raw text"""
     if not raw_text:
@@ -89,7 +86,6 @@ def display_bill_details(data):
         with col2:
             st.write("**Vendor Details:**")
             st.write(f"Name: {bill_data.get('vendor', '')}")
-            # Using st.text to avoid Markdown interpretation
             st.text(f"Address: {bill_data.get('vendor_address', '')}")
 
         st.write("**Items:**")
@@ -140,13 +136,28 @@ def display_bill_details(data):
             else:
                 st.info("No bank details available")
 
-if option == "� Upload Inventory":
-    # Container for upload section
+# Main navigation tabs
+tab1, tab2 = st.tabs(["📋 View Inventory", "📤 Upload Inventory"])
+
+# View Inventory Tab
+with tab1:
     with st.container():
-        st.markdown("""
-            <h2 style='color: #1565C0; margin-bottom: 1rem;'>📤 Upload Inventory Bill</h2>
-        """, unsafe_allow_html=True)
-        
+        with st.spinner("Loading inventory..."):
+            resp = requests.get(f"{API_URL}/inventory/view")
+            if resp.ok:
+                data = resp.json()
+                inventory = data.get("inventory", [])
+                if inventory:
+                    for entry in inventory:
+                        display_bill_details(entry)
+                else:
+                    st.info("🔍 No inventory records found. Upload some bills to get started!")
+            else:
+                st.error("❌ Failed to fetch inventory. Please try again later.")
+
+# Upload Inventory Tab
+with tab2:
+    with st.container():
         # Create columns for better layout
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
@@ -166,23 +177,3 @@ if option == "� Upload Inventory":
                         display_bill_details(data)
                     else:
                         st.error("❌ Failed to process bill. Please try again.")
-
-elif option == "📋 View Inventory":
-    # Container for inventory list
-    with st.container():
-        st.markdown("""
-            <h2 style='color: #1565C0; margin-bottom: 1rem;'>📋 Current Inventory</h2>
-        """, unsafe_allow_html=True)
-        
-        with st.spinner("Loading inventory..."):
-            resp = requests.get(f"{API_URL}/inventory/view")
-            if resp.ok:
-                data = resp.json()
-                inventory = data.get("inventory", [])
-                if inventory:
-                    for entry in inventory:
-                        display_bill_details(entry)
-                else:
-                    st.info("🔍 No inventory records found. Upload some bills to get started!")
-            else:
-                st.error("❌ Failed to fetch inventory. Please try again later.")
